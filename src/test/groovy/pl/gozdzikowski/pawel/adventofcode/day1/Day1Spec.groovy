@@ -6,6 +6,9 @@ import pl.gozdzikowski.pawel.adventofcode.shared.input.Input
 import pl.gozdzikowski.pawel.adventofcode.shared.input.ListInput
 import spock.lang.Specification
 
+import static pl.gozdzikowski.pawel.adventofcode.day1.Trebuchet.DIGITS_AND_WORDS
+import static pl.gozdzikowski.pawel.adventofcode.day1.Trebuchet.ONLY_DIGITS
+
 class Day1Spec extends Specification {
 
     Trebuchet trebuchet = new Trebuchet()
@@ -14,7 +17,7 @@ class Day1Spec extends Specification {
         given:
         String sample = "pqr3stu8vwx"
         when:
-        Long result = trebuchet.findFirstAndLastNumber(sample)
+        Long result = trebuchet.findFirstAndLast(sample, ONLY_DIGITS)
         then:
         result == 38
     }
@@ -28,7 +31,7 @@ class Day1Spec extends Specification {
                 "treb7uchet"
         ])
         when:
-        Long result = trebuchet.findSum(input, trebuchet::findFirstAndLastNumber)
+        Long result = trebuchet.findSum(input, ONLY_DIGITS)
         then:
         result == 142
     }
@@ -37,7 +40,7 @@ class Day1Spec extends Specification {
         given:
         Input input = new FileInput('day1.txt')
         when:
-        Long sum = trebuchet.findSum(input, trebuchet::findFirstAndLastNumber)
+        Long sum = trebuchet.findSum(input, ONLY_DIGITS)
         then:
         sum == 55621
     }
@@ -46,7 +49,7 @@ class Day1Spec extends Specification {
         given:
         String input = "3369eightnine89"
         when:
-        Long result = trebuchet.findFirstAndLastSpelled(input)
+        Long result = trebuchet.findFirstAndLast(input, DIGITS_AND_WORDS)
         then:
         result == 39
     }
@@ -63,7 +66,7 @@ class Day1Spec extends Specification {
                 "7pqrstsixteen"
         ])
         when:
-        Long result = trebuchet.findSum(input, trebuchet::findFirstAndLastSpelled)
+        Long result = trebuchet.findSum(input, DIGITS_AND_WORDS)
         then:
         result == 281
     }
@@ -72,7 +75,7 @@ class Day1Spec extends Specification {
         given:
         Input input = new FileInput('day1.txt')
         when:
-        Long sum = trebuchet.findSum(input, trebuchet::findFirstAndLastSpelled)
+        Long sum = trebuchet.findSum(input, DIGITS_AND_WORDS)
         then:
         sum == 53592
     }

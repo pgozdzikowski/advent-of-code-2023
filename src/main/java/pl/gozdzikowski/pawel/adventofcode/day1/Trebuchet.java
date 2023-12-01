@@ -1,79 +1,72 @@
 package pl.gozdzikowski.pawel.adventofcode.day1;
 
+import pl.gozdzikowski.pawel.adventofcode.shared.collections.Pair;
 import pl.gozdzikowski.pawel.adventofcode.shared.input.Input;
 
-import java.util.List;
+import java.util.Comparator;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class Trebuchet {
 
-    Map<String, Integer> digits = Map.of(
-            "one", 1,
-            "two", 2,
-            "three", 3,
-            "four", 4,
-            "five", 5,
-            "six", 6,
-            "seven", 7,
-            "eight", 8,
-            "nine", 9
+    public static Map<String, Integer> ONLY_DIGITS = Map.ofEntries(
+            Map.entry("1", 1),
+            Map.entry("2", 2),
+            Map.entry("3", 3),
+            Map.entry("4", 4),
+            Map.entry("5", 5),
+            Map.entry("6", 6),
+            Map.entry("7", 7),
+            Map.entry("8", 8),
+            Map.entry("9", 9)
     );
 
-    public Long findSum(Input input, Function<String, Long> func) {
+    public static Map<String, Integer> DIGITS_AND_WORDS = Map.ofEntries(
+            Map.entry("one", 1),
+            Map.entry("two", 2),
+            Map.entry("three", 3),
+            Map.entry("four", 4),
+            Map.entry("five", 5),
+            Map.entry("six", 6),
+            Map.entry("seven", 7),
+            Map.entry("eight", 8),
+            Map.entry("nine", 9),
+            Map.entry("1", 1),
+            Map.entry("2", 2),
+            Map.entry("3", 3),
+            Map.entry("4", 4),
+            Map.entry("5", 5),
+            Map.entry("6", 6),
+            Map.entry("7", 7),
+            Map.entry("8", 8),
+            Map.entry("9", 9)
+    );
+
+    public Long findSum(Input input, Map<String, Integer> converters) {
         return input.get().stream()
-                .map(func)
+                .map((line) -> findFirstAndLast(line, converters))
                 .mapToLong(Long::longValue)
                 .sum();
     }
 
-    public Long findFirstAndLastNumber(String input) {
-        List<Character> list = input.chars().mapToObj((val) -> (char) val).toList();
-        List<Character> reversed = list.reversed();
-        Character first = findFirstDigit(list);
-        Character last = findFirstDigit(reversed);
-        return Long.valueOf(first.toString() + last.toString());
+    public Long findFirstAndLast(String input, Map<String, Integer> map) {
+        return Long.valueOf(findMinValueOfSpelled(input, map).toString() + findMaxValueOfSpelled(input, map).toString());
     }
 
-    private static Character findFirstDigit(List<Character> characters) {
-        return characters.stream()
-                .filter(Character::isDigit)
-                .findFirst()
-                .orElse(' ');
+    public Integer findMinValueOfSpelled(String input, Map<String, Integer> digits) {
+        return digits.keySet().stream()
+                .map((key) -> Pair.of(key, input.indexOf(key)))
+                .filter((pair) -> pair.right() != -1)
+                .min(Comparator.comparing(Pair::right))
+                .map((pair) -> digits.get(pair.left()))
+                .orElseThrow();
     }
 
-
-    public Long findFirstAndLastSpelled(String input) {
-        Integer minOffset = Integer.MAX_VALUE;
-        Integer valueWithMin = 0;
-        Integer maxOffset = Integer.MIN_VALUE;
-        Integer valueWithMax = 0;
-        List<String> keys = Stream.concat(digits.keySet().stream(),
-                        digits.values().stream().map((val) -> val.toString()))
-                .toList();
-        for (String key : keys) {
-            int index = input.indexOf(key);
-            if (index != -1 && index < minOffset) {
-                if (Character.isDigit(key.charAt(0))) {
-                    valueWithMin = Integer.valueOf(key);
-                } else {
-                    valueWithMin = digits.get(key);
-                }
-                minOffset = index;
-
-            }
-            int lastIndex = input.lastIndexOf(key);
-            if (index != -1 && lastIndex > maxOffset) {
-                if (Character.isDigit(key.charAt(0))) {
-                    valueWithMax = Integer.valueOf(key);
-                } else {
-                    valueWithMax = digits.get(key);
-                }
-                maxOffset = lastIndex;
-            }
-        }
-
-        return Long.valueOf(valueWithMin.toString() + valueWithMax.toString());
+    public Integer findMaxValueOfSpelled(String input, Map<String, Integer> digits) {
+        return digits.keySet().stream()
+                .map((key) -> Pair.of(key, input.lastIndexOf(key)))
+                .filter((pair) -> pair.right() != -1)
+                .max(Comparator.comparing(Pair::right))
+                .map((pair) -> digits.get(pair.left()))
+                .orElseThrow();
     }
 }
