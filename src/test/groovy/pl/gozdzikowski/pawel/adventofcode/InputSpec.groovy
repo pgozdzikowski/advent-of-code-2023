@@ -8,7 +8,7 @@ class InputSpec extends Specification{
 
     def 'should read single line of task'() {
         given:
-        Input input = new FileInput("day1.txt")
+        Input input = new FileInput("day0.txt")
         when:
         List<String> lines = input.get()
         then:
