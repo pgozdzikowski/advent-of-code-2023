@@ -49,10 +49,10 @@ public class Trebuchet {
     }
 
     public Long findFirstAndLast(String input, Map<String, Integer> map) {
-        return Long.valueOf(findMinValueOfSpelled(input, map).toString() + findMaxValueOfSpelled(input, map).toString());
+        return Long.valueOf("" + findFirstValue(input, map) + findLastValue(input, map));
     }
 
-    public Integer findMinValueOfSpelled(String input, Map<String, Integer> digits) {
+    public Integer findFirstValue(String input, Map<String, Integer> digits) {
         return digits.keySet().stream()
                 .map((key) -> Pair.of(key, input.indexOf(key)))
                 .filter((pair) -> pair.right() != -1)
@@ -61,7 +61,7 @@ public class Trebuchet {
                 .orElseThrow();
     }
 
-    public Integer findMaxValueOfSpelled(String input, Map<String, Integer> digits) {
+    public Integer findLastValue(String input, Map<String, Integer> digits) {
         return digits.keySet().stream()
                 .map((key) -> Pair.of(key, input.lastIndexOf(key)))
                 .filter((pair) -> pair.right() != -1)
