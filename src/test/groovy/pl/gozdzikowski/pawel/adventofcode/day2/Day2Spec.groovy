@@ -10,20 +10,7 @@ class Day2Spec extends Specification {
 
     CubeConundrum cubeConundrum = new CubeConundrum()
 
-    def 'should calculate result'() {
-        given:
-        String game = "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"
-        when:
-        CubeConundrum.GameResults gameResults = cubeConundrum.parseString(game)
-        then:
-        with(gameResults) {
-            green() == 4
-            blue() == 9
-            red() == 5
-        }
-    }
-
-    def 'results'() {
+    def 'should calculate for sample'() {
         given:
         Input input = new ListInput([
                 "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green",
@@ -38,16 +25,16 @@ class Day2Spec extends Specification {
         results == 8
     }
 
-    def 'day1 spec'() {
+    def 'task part1'() {
         given:
         Input input = new FileInput("day2.txt")
         when:
         Integer result = cubeConundrum.sumOfGames(input, new CubeConundrum.Limits(12, 14, 13))
         then:
-        result == 0
+        result == 2810
     }
 
-    def 'power'() {
+    def 'sample part2 '() {
         given:
         Input input = new ListInput([
                 "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green",
@@ -62,12 +49,12 @@ class Day2Spec extends Specification {
         results == 2286
     }
 
-    def 'day2 spec'() {
+    def 'day2 part2 solution'() {
         given:
         Input input = new FileInput("day2.txt")
         when:
         Integer results = cubeConundrum.powerOfGame(input)
         then:
-        results == 0
+        results == 69110
     }
 }
