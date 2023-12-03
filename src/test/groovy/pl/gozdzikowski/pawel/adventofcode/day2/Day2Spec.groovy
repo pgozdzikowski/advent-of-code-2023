@@ -1,6 +1,6 @@
 package pl.gozdzikowski.pawel.adventofcode.day2
 
-import pl.gozdzikowski.pawel.adventofcode.day1.CubeConundrum
+
 import pl.gozdzikowski.pawel.adventofcode.shared.input.FileInput
 import pl.gozdzikowski.pawel.adventofcode.shared.input.Input
 import pl.gozdzikowski.pawel.adventofcode.shared.input.ListInput

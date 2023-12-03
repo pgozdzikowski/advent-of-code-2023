@@ -1,4 +1,4 @@
-package pl.gozdzikowski.pawel.adventofcode.day1;
+package pl.gozdzikowski.pawel.adventofcode.day2;
 
 import pl.gozdzikowski.pawel.adventofcode.shared.input.Input;
 
