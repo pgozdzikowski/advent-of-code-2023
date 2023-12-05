@@ -43,7 +43,7 @@ class Day5Spec extends Specification {
         when:
         Integer result = ifYouGiveASeedAFertilizer.findLowestLocationForPairedSeeds(seeds)
         then:
-        result == 251346198
+        result == 72263011
     }
 
     private IfYouGiveASeedAFertilizer createInstanceForTaskSample() {

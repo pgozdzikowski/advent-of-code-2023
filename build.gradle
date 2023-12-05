@@ -23,8 +23,6 @@ dependencies {
     // overrides groovy 2.5.2 from spock that fails with JDK 11 (GROOVY-8727)
     implementation group: 'org.codehaus.groovy', name: 'groovy-all', version: '3.0.18', ext: 'pom'
     implementation group: 'org.codehaus.groovy', name: 'groovy-astbuilder', version: '3.0.18'
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.14.0'
-
 
 }
 

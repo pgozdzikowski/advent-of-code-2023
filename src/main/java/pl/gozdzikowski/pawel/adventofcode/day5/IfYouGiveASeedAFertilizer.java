@@ -1,6 +1,5 @@
 package pl.gozdzikowski.pawel.adventofcode.day5;
 
-import org.apache.commons.lang3.Range;
 import pl.gozdzikowski.pawel.adventofcode.shared.collections.ListExt;
 import pl.gozdzikowski.pawel.adventofcode.shared.collections.Pair;
 
@@ -59,7 +58,7 @@ public class IfYouGiveASeedAFertilizer {
 
         List<Range> ranges = ListExt.partition(seedsList, 2)
                 .stream()
-                .map((el) -> Range.of(el.get(0), el.get(0) + el.get(1) -1))
+                .map((el) -> Range.of(el.get(0), el.get(0) + el.get(1) - 1))
                 .toList();
 
         return ranges.stream()
@@ -72,7 +71,7 @@ public class IfYouGiveASeedAFertilizer {
     private List<Range> findLocationForSingleRange(Range range) {
         List<Range> ranges = new LinkedList<>(List.of(range));
         for (TypeMapping typeMapping : mappings) {
-                ranges = typeMapping.findMapping(ranges);
+            ranges = typeMapping.findMapping(ranges);
         }
         return ranges;
     }
@@ -110,29 +109,52 @@ public class IfYouGiveASeedAFertilizer {
             return end() - start();
         }
 
+        public boolean isOverlappedBy(Range otherRange) {
+            if (otherRange == null) {
+                return false;
+            }
+            return otherRange.contains(start)
+                    || otherRange.contains(end)
+                    || contains(otherRange.start);
+        }
+
+        /**
+         * Take from apache-lang3
+         * @param other
+         * @return
+         */
+        public Range intersectionWith(Range other) {
+            if (!this.isOverlappedBy(other)) {
+                return null;
+            }
+            if (this.equals(other)) {
+                return this;
+            }
+
+            Long min = start < other.start ? other.start : start;
+            Long max = end < other.end() ? end : other.end;
+            return of(min, max);
+        }
+
+        private boolean contains(Long element) {
+            if (element == null) {
+                return false;
+            }
+            return element >= start && element < end;
+        }
+
         public Pair<Range, List<Range>> overlappedToNotOverlapped(Range range) {
-            org.apache.commons.lang3.Range<Long> r2 = org.apache.commons.lang3.Range.of(range.start, range.end);
-            org.apache.commons.lang3.Range<Long> r1 = org.apache.commons.lang3.Range.of(start(), end());
-
-            if(r1.isOverlappedBy(r2)) {
-                var intersected = r1.intersectionWith(r2);
-                if (r1.equals(r2)) {
-                    return Pair.of(
-                            Range.of(intersected.getMinimum(), intersected.getMaximum()),
-                            List.of()
-                    );
-                }
-
+            if (this.isOverlappedBy(range)) {
+                var intersected = this.intersectionWith(range);
                 List<Range> remaingingParts = new LinkedList<>();
-
-                if(r1.getMinimum() < intersected.getMinimum())
-                    remaingingParts.add(Range.of(r1.getMinimum(), intersected.getMinimum() - 1));
-                if(r1.getMaximum() > intersected.getMaximum()) {
-                    remaingingParts.add((Range.of(intersected.getMaximum() + 1, r1.getMaximum())));
+                if (this.start() < intersected.start())
+                    remaingingParts.add(Range.of(this.start(), intersected.start() - 1));
+                if (this.end() > intersected.end()) {
+                    remaingingParts.add((Range.of(intersected.end() + 1, this.end())));
                 }
 
                 return Pair.of(
-                        Range.of(intersected.getMinimum(), intersected.getMaximum()),
+                        intersected,
                         remaingingParts
                 );
             }
@@ -162,7 +184,7 @@ public class IfYouGiveASeedAFertilizer {
                 List<Range> notMappedAfterSingleMapping = new LinkedList<>();
                 for (Range range : notMappedRange) {
                     var overlapped = range.overlappedToNotOverlapped(typeMapping.from());
-                    if(overlapped.left() != null) {
+                    if (overlapped.left() != null) {
                         Range beforeMapping = overlapped.left();
                         mappedRange.add(typeMapping.findMapping(beforeMapping));
                     }
@@ -182,7 +204,7 @@ public class IfYouGiveASeedAFertilizer {
     ) {
         public Long findMapping(Long num) {
             if (from.inRange(num)) {
-                long loc = to.locationAt(num);
+                long loc = from.locationAt(num);
                 return to.valueAt(loc);
             }
             return null;
