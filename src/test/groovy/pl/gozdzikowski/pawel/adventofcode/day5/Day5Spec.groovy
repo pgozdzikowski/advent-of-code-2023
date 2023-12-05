@@ -22,7 +22,18 @@ class Day5Spec extends Specification {
         when:
         Integer result = ifYouGiveASeedAFertilizer.findLowestLocation(seeds)
         then:
-        result == 35
+        result == 251346198
+    }
+
+    def "should calculate for sample 2"() {
+        given:
+
+            IfYouGiveASeedAFertilizer ifYouGiveASeedAFertilizer = createInstanceForTaskSample()
+            String seeds = "79 14 55 13"
+        when:
+            Long result = ifYouGiveASeedAFertilizer.findLowestLocationForPairedSeeds(seeds)
+        then:
+            result == 46
     }
 
     def "should calculate for task input part2"() {
@@ -30,9 +41,9 @@ class Day5Spec extends Specification {
         IfYouGiveASeedAFertilizer ifYouGiveASeedAFertilizer = createInstanceForTaskInput()
         String seeds = "41218238 421491713 1255413673 350530906 944138913 251104806 481818804 233571979 2906248740 266447632 3454130719 50644329 1920342932 127779721 2109326496 538709762 3579244700 267233350 4173137165 60179884"
         when:
-        Integer result = ifYouGiveASeedAFertilizer.findLowestLocation(seeds)
+        Integer result = ifYouGiveASeedAFertilizer.findLowestLocationForPairedSeeds(seeds)
         then:
-        result == 35
+        result == 251346198
     }
 
     private IfYouGiveASeedAFertilizer createInstanceForTaskSample() {
