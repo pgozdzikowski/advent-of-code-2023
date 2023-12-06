@@ -36,8 +36,6 @@ class Day6Spec extends Specification {
         numWays == 30077773
     }
 
-    @Ignore
-    // TODO: check why passing on task input but don't on sample
     def 'should calculate for sample part2'() {
         given:
         Long time = 71530

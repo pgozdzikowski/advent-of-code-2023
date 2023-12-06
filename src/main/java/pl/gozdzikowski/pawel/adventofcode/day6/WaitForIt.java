@@ -29,11 +29,11 @@ public class WaitForIt {
 
     Long calculateForLongRace(Long time, Long record) {
         Long delta = time * time - 4 * record;
-        long sqrtFromDelta = (long) Math.ceil(Math.sqrt(delta));
-        long x1 = (-time - sqrtFromDelta) / 2 * (-1);
-        long x2 = (-time + sqrtFromDelta) / 2 * (-1);
+        double sqrtFromDelta =  Math.sqrt(delta);
+        double x1 = (-time - sqrtFromDelta) / (2 * (-1));
+        double x2 = (-time + sqrtFromDelta) / (2 * (-1));
 
-        return x1 - x2;
+        return (long)x1 - (long)x2;
     }
 
     record TimeToDistance(
