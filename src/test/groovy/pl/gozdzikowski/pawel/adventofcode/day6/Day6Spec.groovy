@@ -23,7 +23,7 @@ class Day6Spec extends Specification {
         when:
         Long numWays = waitForIt.findNumOfWays(time, distance)
         then:
-        numWays == 288
+        numWays == 4811940
     }
 
     def 'should calculate for task input part2'() {
