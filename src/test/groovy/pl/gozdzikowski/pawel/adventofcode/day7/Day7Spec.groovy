@@ -11,40 +11,49 @@ class Day7Spec extends Specification {
 
     def 'should calculate for sample'() {
         given:
-        Input input = new ListInput([
-                '32T3K 765',
-                'T55J5 684',
-                'KK677 28',
-                'KTJJT 220',
-                'QQQJA 483'
-        ])
+            Input input = new ListInput([
+                    '32T3K 765',
+                    'T55J5 684',
+                    'KK677 28',
+                    'KTJJT 220',
+                    'QQQJA 483'
+            ])
         when:
-        Long res =camelCards.calculateRank(input)
+            Long res = camelCards.calculateRank(input)
         then:
-        res == 6440
+            res == 6440
     }
 
     def 'task input'() {
         given:
-        Input input = new FileInput('day7.txt')
+            Input input = new FileInput('day7.txt')
         when:
-        Long res =camelCards.calculateRank(input)
+            Long res = camelCards.calculateRank(input)
         then:
-        res == 6440
+            res == 247815719
     }
 
     def 'should calculate for sample part2'() {
         given:
-        Input input = new ListInput([
-                '32T3K 765',
-                'T55J5 684',
-                'KK677 28',
-                'KTJJT 220',
-                'QQQJA 483'
-        ])
+            Input input = new ListInput([
+                    '32T3K 765',
+                    'T55J5 684',
+                    'KK677 28',
+                    'KTJJT 220',
+                    'QQQJA 483'
+            ])
         when:
-        Long res =camelCards.calculateRankWithJoker(input)
+            Long res = camelCards.calculateRankWithJoker(input)
         then:
-        res == 5905
+            res == 5905
+    }
+
+    def 'task input part2'() {
+        given:
+            Input input = new FileInput('day7.txt')
+        when:
+            Long res = camelCards.calculateRankWithJoker(input)
+        then:
+            res == 248747492
     }
 }

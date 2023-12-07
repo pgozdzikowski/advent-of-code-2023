@@ -1,10 +1,12 @@
 package pl.gozdzikowski.pawel.adventofcode.day7;
 
+import pl.gozdzikowski.pawel.adventofcode.shared.collections.Pair;
 import pl.gozdzikowski.pawel.adventofcode.shared.input.Input;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static pl.gozdzikowski.pawel.adventofcode.day7.CamelCards.Type.*;
 
@@ -31,30 +33,25 @@ public class CamelCards {
             Map.entry('A', 13),
             Map.entry('K', 12),
             Map.entry('Q', 11),
-            Map.entry('T', 9),
-            Map.entry('9', 8),
-            Map.entry('8', 7),
-            Map.entry('7', 6),
-            Map.entry('6', 5),
-            Map.entry('5', 4),
-            Map.entry('4', 3),
-            Map.entry('3', 2),
-            Map.entry('2', 1),
-            Map.entry('J', 0)
+            Map.entry('T', 10),
+            Map.entry('9', 9),
+            Map.entry('8', 8),
+            Map.entry('7', 7),
+            Map.entry('6', 6),
+            Map.entry('5', 5),
+            Map.entry('4', 4),
+            Map.entry('3', 3),
+            Map.entry('2', 2),
+            Map.entry('J', 1)
     );
 
     public Long calculateRank(Input input) {
         List<Card> list = input.get().stream()
                 .map(this::mapSingleCard)
-                .sorted()
+                .sorted(new NormalComparator())
                 .toList();
 
-        Long sum = 0L;
-        for (int i = 0; i < list.size(); ++i) {
-            sum += list.get(i).rank * (i + 1);
-        }
-
-        return sum;
+        return calculateSumOfMultiplyRank(list);
     }
 
     public Long calculateRankWithJoker(Input input) {
@@ -63,12 +60,14 @@ public class CamelCards {
                 .sorted(new JokerComparator())
                 .toList();
 
-        Long sum = 0L;
-        for (int i = 0; i < list.size(); ++i) {
-            sum += list.get(i).rank * (i + 1);
-        }
+        return calculateSumOfMultiplyRank(list);
+    }
 
-        return sum;
+    private static Long calculateSumOfMultiplyRank(List<Card> list) {
+        return IntStream.range(0, list.size())
+                .mapToObj((idx) -> Pair.of(idx, list.get(idx)))
+                .map((el) -> (el.left() + 1) * el.right().rank())
+                .reduce(0L, Long::sum);
     }
 
     private Card mapSingleCard(String s) {
@@ -82,7 +81,7 @@ public class CamelCards {
     public record Card(
             List<Character> cards,
             Long rank
-    ) implements Comparable<Card> {
+    ) {
 
         Type determineType() {
             Map<Character, List<Character>> collected = cards.stream()
@@ -109,37 +108,32 @@ public class CamelCards {
         Type determineTypeWithJoker() {
             Map<Character, List<Character>> collected = cards.stream()
                     .collect(Collectors.groupingBy(Function.identity()));
-            List<Character> jokeCards = collected.get('J');
+            List<Character> jokerCards = collected.get('J');
 
-            Integer collectedSizeWithoutJoker = collected.size() - 1;
-            if (jokeCards == null) {
+            if (jokerCards == null || jokerCards.size() == 5) {
                 return determineType();
             }
 
+            List<Character> withoutJoker = cards.stream().filter((c) -> !c.equals('J')).toList();
+            Card cardWithoutJoker = new Card(withoutJoker, 0L);
 
-            switch(jokeCards.size()) {
-                case 1 -> {
-                    if(collectedSizeWithoutJoker == 4) {
-                        return ONE_PAIR;
-                    } else if(collected.values().stream().filter((el) -> el.size() == 2))
-                }
-            }
-
-
-            return Type.HIGH_CARD;
+            return cardWithoutJoker.determineType().determineTypeBaseOnJokerCount(jokerCards.size());
         }
+    }
+
+    class NormalComparator implements Comparator<Card> {
 
         @Override
-        public int compareTo(Card o) {
-            Type type = this.determineType();
-            Type otherType = o.determineType();
+        public int compare(Card o1, Card o2) {
+            Type type = o1.determineType();
+            Type otherType = o2.determineType();
             if (type != otherType) {
                 return type.ordinal() < otherType.ordinal() ? 1 : -1;
             }
 
-            for (int i = 0; i < cards.size(); ++i) {
-                int rank = RANKS.get(cards.get(i));
-                int otherRank = RANKS.get(o.cards().get(i));
+            for (int i = 0; i < o1.cards().size(); ++i) {
+                int rank = RANKS.get(o1.cards().get(i));
+                int otherRank = RANKS.get(o2.cards().get(i));
                 if (rank != otherRank) {
                     return rank > otherRank ? 1 : -1;
                 }
@@ -173,13 +167,71 @@ public class CamelCards {
     }
 
     enum Type {
-        FIVE_OF_A_KIND,
-        FOUR_OF_A_KIND,
-        FULL_HOUSE,
-        THREE_OF_A_KIND,
-        TWO_PAIR,
-        ONE_PAIR,
-        HIGH_CARD
+        FIVE_OF_A_KIND {
+            @Override
+            Type determineTypeBaseOnJokerCount(Integer jokerCount) {
+                return FIVE_OF_A_KIND;
+            }
+        },
+        FOUR_OF_A_KIND {
+            @Override
+            Type determineTypeBaseOnJokerCount(Integer jokerCount) {
+                return switch(jokerCount) {
+                    case 1 -> FIVE_OF_A_KIND;
+                    default -> FOUR_OF_A_KIND;
+                };
+            }
+        },
+        FULL_HOUSE {
+            @Override
+            Type determineTypeBaseOnJokerCount(Integer jokerCount) {
+                return FULL_HOUSE;
+            }
+        },
+        THREE_OF_A_KIND {
+            @Override
+            Type determineTypeBaseOnJokerCount(Integer jokerCount) {
+                return switch(jokerCount) {
+                    case 2 -> FIVE_OF_A_KIND;
+                    case 1 -> FOUR_OF_A_KIND;
+                    default -> THREE_OF_A_KIND;
+                };
+            }
+        },
+        TWO_PAIR {
+            @Override
+            Type determineTypeBaseOnJokerCount(Integer jokerCount) {
+                return switch (jokerCount) {
+                    case 1 -> FULL_HOUSE;
+                    default -> TWO_PAIR;
+                };
+            }
+        },
+        ONE_PAIR {
+            @Override
+            Type determineTypeBaseOnJokerCount(Integer jokerCount) {
+                return switch (jokerCount) {
+                    case 3 -> FIVE_OF_A_KIND;
+                    case 2 -> FOUR_OF_A_KIND;
+                    case 1 -> THREE_OF_A_KIND;
+                    default -> ONE_PAIR;
+                };
+            }
+        },
+        HIGH_CARD {
+            @Override
+            Type determineTypeBaseOnJokerCount(Integer jokerCount) {
+                return switch (jokerCount) {
+                    case 4 -> FIVE_OF_A_KIND;
+                    case 3 -> FOUR_OF_A_KIND;
+                    case 2 -> THREE_OF_A_KIND;
+                    case 1 -> ONE_PAIR;
+                    default -> HIGH_CARD;
+                };
+            }
+        };
+
+        abstract Type determineTypeBaseOnJokerCount(Integer jokerCount);
     }
 }
 
