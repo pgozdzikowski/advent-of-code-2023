@@ -28,10 +28,7 @@ public class MirageMaintenance {
         if (numbers.stream().allMatch((el) -> el.equals(0))) {
             return 0;
         }
-        List<Integer> copiedList = new ArrayList<>(numbers.size() - 1);
-        for (int i = 0; i < numbers.size() - 1; i++) {
-            copiedList.add(0);
-        }
+        List<Integer> copiedList = new ArrayList<>(Arrays.asList(new Integer[numbers.size() -1]));
 
         for (int i = 1; i < numbers.size(); ++i) {
             copiedList.set(i - 1, numbers.get(i) - numbers.get(i - 1));
@@ -44,10 +41,7 @@ public class MirageMaintenance {
         if (numbers.stream().allMatch((el) -> el.equals(0))) {
             return 0;
         }
-        List<Integer> copiedList = new ArrayList<>(numbers.size() - 1);
-        for (int i = 0; i < numbers.size() - 1; i++) {
-            copiedList.add(0);
-        }
+        List<Integer> copiedList = new ArrayList<>(Arrays.asList(new Integer[numbers.size() -1]));
 
         for (int i = 1; i < numbers.size(); ++i) {
             copiedList.set(i - 1, numbers.get(i) - numbers.get(i - 1));
