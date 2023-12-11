@@ -22,18 +22,45 @@ class Day11Spec extends Specification{
 #...#.....
 """
         when:
-        def paths = cosmicExpansion.findSumOfShortestPaths(new StringInput(input))
+        def paths = cosmicExpansion.findSumOfShortestPaths(new StringInput(input), 2)
         then:
         paths == 374
     }
 
-    @Ignore
     def 'part1'() {
         given:
         Input input = new FileInput("day11.txt")
         when:
-        def paths = cosmicExpansion.findSumOfShortestPaths(input)
+        def paths = cosmicExpansion.findSumOfShortestPaths(input, 2)
         then:
-        paths == 374
+        paths == 10154062
+    }
+
+    def 'should calculate for sample part2'() {
+        given:
+            String input = """...#......
+.......#..
+#.........
+..........
+......#...
+.#........
+.........#
+..........
+.......#..
+#...#.....
+"""
+        when:
+            def paths = cosmicExpansion.findSumOfShortestPaths(new StringInput(input), 100)
+        then:
+            paths == 8410
+    }
+
+    def 'part2'() {
+        given:
+            Input input = new FileInput("day11.txt")
+        when:
+            def paths = cosmicExpansion.findSumOfShortestPaths(input, 1000_000)
+        then:
+            paths == 553083047914
     }
 }
