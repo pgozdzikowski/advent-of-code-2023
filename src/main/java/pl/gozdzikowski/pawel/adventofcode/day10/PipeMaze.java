@@ -3,22 +3,12 @@ package pl.gozdzikowski.pawel.adventofcode.day10;
 import pl.gozdzikowski.pawel.adventofcode.shared.collections.Pair;
 import pl.gozdzikowski.pawel.adventofcode.shared.input.Input;
 
-import java.util.ArrayList;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class PipeMaze {
 
-
-    //
-//    | is a vertical pipe connecting north and south.
-//            - is a horizontal pipe connecting east and west.
-//    L is a 90-degree bend connecting north and east.
-//    J is a 90-degree bend connecting north and west.
-//            7 is a 90-degree bend connecting south and west.
-//    F is a 90-degree bend connecting south and east.
-//            . is ground; there is no pipe in this tile.
-//    S is the starting position of the animal; there is a pipe on this tile, but your sketch doesn't show what shape the pipe has.
     Map<Character, List<Pair<Direction, Direction>>> DIRECTION_MAP = Map.of(
             '|', List.of(Pair.of(Direction.SOUTH, Direction.SOUTH), Pair.of(Direction.NORTH, Direction.NORTH)),
             '-', List.of(Pair.of(Direction.EAST, Direction.EAST), Pair.of(Direction.WEST, Direction.WEST)),
@@ -30,12 +20,16 @@ public class PipeMaze {
     );
 
     public Integer calculatePathInPipe(Input input) {
+        return findPath(input).size() / 2;
+    }
+
+    private List<Pair<Integer, Integer>> findPath(Input input) {
         char[][] pipeWorld = createPipeWorld(input.getContent());
         Pair<Integer, Integer> currentPosition = findSPosition(pipeWorld);
         List<Character> traveledPath = new ArrayList<>(List.of('S'));
         Direction currentDirection = determineMovingDirectionFromS(pipeWorld, currentPosition);
+        List<Pair<Integer, Integer>> visitedPositions = new ArrayList<>(List.of(currentPosition));
         currentPosition = Pair.of(currentPosition.left() + currentDirection.getOffset().left(), currentPosition.right() + currentDirection.getOffset().right());
-        List<Pair<Integer, Integer>> visitedPositions = new ArrayList<>();
         while (pipeWorld[currentPosition.right()][currentPosition.left()] != 'S') {
             visitedPositions.add(currentPosition);
             traveledPath.add(pipeWorld[currentPosition.right()][currentPosition.left()]);
@@ -44,7 +38,65 @@ public class PipeMaze {
             currentPosition = Pair.of(currentPosition.left() + movingOffset.left(), currentPosition.right() + movingOffset.right());
         }
 
-        return traveledPath.size() / 2;
+        return visitedPositions;
+    }
+
+    public Long calculateSurroundedTiles(Input input) {
+        char[][] pipeWorld = createPipeWorld(input.getContent());
+        List<Pair<Integer, Integer>> path = findPath(input);
+        int minX = path.stream().map(Pair::left).mapToInt(Integer::intValue).min().getAsInt();
+        int maxX = path.stream().map(Pair::left).mapToInt(Integer::intValue).max().getAsInt();
+        int minY = path.stream().map(Pair::right).mapToInt(Integer::intValue).min().getAsInt();
+        int maxY = path.stream().map(Pair::right).mapToInt(Integer::intValue).max().getAsInt();
+        List<Pair<Integer, Integer>> groundPoints = groundPointsBetween(minX, maxX, minY, maxY, pipeWorld);
+
+        int[] xArray = path.stream().sorted(Comparator.comparing(Pair::left)).map(Pair::left).mapToInt(Integer::intValue).toArray();
+        int[] yArray = path.stream().sorted(Comparator.comparing(Pair::left)).map(Pair::right).mapToInt(Integer::intValue).toArray();
+        Polygon polygon = new Polygon(xArray, yArray, xArray.length);
+
+
+        return groundPoints.stream().filter((el) -> polygon.contains(new Point(el.left(), el.right())))
+                .count();
+    }
+
+    private List<Period> convertPointsToPeriods(List<Pair<Integer, Integer>> path) {
+        int currentPosition = 0;
+        List<Period> periods = new ArrayList<>();
+        while (currentPosition < path.size() - 1) {
+            Pair<Integer, Integer> beginOfPeriod = path.get(currentPosition);
+            while (currentPosition + 1 < path.size() && path.get(currentPosition).left().equals(path.get(currentPosition + 1).left())) {
+                currentPosition++;
+                if (currentPosition + 1 >= path.size())
+                    break;
+            }
+            if (!beginOfPeriod.equals(path.get(currentPosition))) {
+                periods.add(Period.of(beginOfPeriod, path.get(currentPosition)));
+            }
+            beginOfPeriod = path.get(currentPosition);
+            while (currentPosition + 1 < path.size() && path.get(currentPosition).right().equals(path.get(currentPosition + 1).right())) {
+                currentPosition++;
+                if (currentPosition + 1 >= path.size())
+                    break;
+            }
+            if (!beginOfPeriod.equals(path.get(currentPosition))) {
+                periods.add(Period.of(beginOfPeriod, path.get(currentPosition)));
+            }
+        }
+
+        return periods;
+    }
+
+    List<Pair<Integer, Integer>> groundPointsBetween(int minX, int maxX, int minY, int maxY, char[][] pipeWorld) {
+        List<Pair<Integer, Integer>> groundPoints = new ArrayList<>();
+
+        for (int y = minY; y <= maxY; ++y) {
+            for (int x = minX; x <= maxX; ++x) {
+                if (pipeWorld[y][x] == '.') {
+                    groundPoints.add(Pair.of(x, y));
+                }
+            }
+        }
+        return groundPoints;
     }
 
     private char[][] createPipeWorld(String input) {
@@ -96,12 +148,52 @@ public class PipeMaze {
 
     Pair<Integer, Integer> findSPosition(char[][] pipeWorld) {
         for (int y = 0; y < pipeWorld.length; ++y) {
-            for (int x = 0; x < pipeWorld.length; ++x) {
+            for (int x = 0; x < pipeWorld[y].length; ++x) {
                 if (pipeWorld[y][x] == 'S')
                     return Pair.of(x, y);
             }
         }
         throw new IllegalStateException("Unable to find start pos");
+    }
+
+    record Period(
+            Pair<Integer, Integer> begin,
+            Pair<Integer, Integer> end
+    ) {
+
+        static Period of(Pair<Integer, Integer> begin, Pair<Integer, Integer> end) {
+            if (begin.left().equals(end.left())) {
+                if (end.right() > begin.right()) {
+                    return new Period(begin, end);
+                } else {
+                    return new Period(end, begin);
+                }
+            } else if (begin.right().equals(end.right())) {
+                if (end.left() > begin.left()) {
+                    return new Period(begin, end);
+                } else {
+                    return new Period(end, begin);
+                }
+            }
+            throw new IllegalStateException("Unable to create period for " + begin + " " + end);
+        }
+
+        public boolean isHorizontal() {
+            return begin.right().equals(end.right());
+        }
+
+        public boolean containsPoint(Pair<Integer, Integer> el) {
+            if (isHorizontal()) {
+                if (el.right().equals(begin.right())) {
+                    return el.left() >= begin.left() && el.left() < end.left();
+                }
+            } else {
+                if (el.left().equals(begin.left())) {
+                    return el.right() >= begin.right() && el.right() < end.right();
+                }
+            }
+            return false;
+        }
     }
 
     enum Direction {
