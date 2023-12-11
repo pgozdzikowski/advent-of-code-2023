@@ -33,7 +33,6 @@ LJ..."""
         res == 6733
     }
 
-    @Ignore
     def 'part2 sample'() {
         given:
         String input ="""...........
@@ -51,7 +50,6 @@ LJ..."""
         res == 4
     }
 
-    @Ignore
     def 'part2 sample2'() {
         given:
         String input =""".F----7F7F7F7F-7....
@@ -70,7 +68,6 @@ L--J.L7...LJS7F-7L7.
         res == 8
     }
 
-    @Ignore
     def 'part2 sample3'() {
         given:
         String input ="""FF7FSF7F7F7F7F7F---7
@@ -86,17 +83,16 @@ L7JLJL-JLJLJL--JLJ.L"""
         when:
         Integer res = pipeMaze.calculateSurroundedTiles(new StringInput(input))
         then:
-        res == 8
+        res == 10
     }
 
-    @Ignore
     def 'part2'() {
         given:
         Input input = new FileInput("day10.txt")
         when:
         Integer res = pipeMaze.calculateSurroundedTiles(input)
         then:
-        res == 6733
+        res == 435
     }
 
 

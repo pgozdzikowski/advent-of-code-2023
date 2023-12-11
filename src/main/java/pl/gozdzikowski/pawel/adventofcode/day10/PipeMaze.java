@@ -44,19 +44,32 @@ public class PipeMaze {
     public Long calculateSurroundedTiles(Input input) {
         char[][] pipeWorld = createPipeWorld(input.getContent());
         List<Pair<Integer, Integer>> path = findPath(input);
-        int minX = path.stream().map(Pair::left).mapToInt(Integer::intValue).min().getAsInt();
-        int maxX = path.stream().map(Pair::left).mapToInt(Integer::intValue).max().getAsInt();
-        int minY = path.stream().map(Pair::right).mapToInt(Integer::intValue).min().getAsInt();
-        int maxY = path.stream().map(Pair::right).mapToInt(Integer::intValue).max().getAsInt();
-        List<Pair<Integer, Integer>> groundPoints = groundPointsBetween(minX, maxX, minY, maxY, pipeWorld);
+        List<Pair<Integer, Integer>> groundPoints = tilePoints(pipeWorld, path);
+        List<Period> periods = convertPointsToPeriods(path);
 
-        int[] xArray = path.stream().sorted(Comparator.comparing(Pair::left)).map(Pair::left).mapToInt(Integer::intValue).toArray();
-        int[] yArray = path.stream().sorted(Comparator.comparing(Pair::left)).map(Pair::right).mapToInt(Integer::intValue).toArray();
-        Polygon polygon = new Polygon(xArray, yArray, xArray.length);
+        Polygon polygon = new Polygon();
 
+        for (Pair<Integer, Integer> point : path) {
+            polygon.addPoint(point.left(), point.right());
+        }
+
+        polygon.addPoint(path.get(0).left(), path.get(0).right());
 
         return groundPoints.stream().filter((el) -> polygon.contains(new Point(el.left(), el.right())))
                 .count();
+    }
+
+    private List<Pair<Integer, Integer>> tilePoints(char[][] pipeWorld, List<Pair<Integer, Integer>> path) {
+        List<Pair<Integer, Integer>> tilePoints = new ArrayList<>();
+
+        for (int y = 0; y < pipeWorld.length; ++y) {
+            for (int x = 0; x < pipeWorld[y].length; ++x) {
+                if (!path.contains(Pair.of(x, y))) {
+                    tilePoints.add(Pair.of(x, y));
+                }
+            }
+        }
+        return tilePoints;
     }
 
     private List<Period> convertPointsToPeriods(List<Pair<Integer, Integer>> path) {
@@ -84,19 +97,6 @@ public class PipeMaze {
         }
 
         return periods;
-    }
-
-    List<Pair<Integer, Integer>> groundPointsBetween(int minX, int maxX, int minY, int maxY, char[][] pipeWorld) {
-        List<Pair<Integer, Integer>> groundPoints = new ArrayList<>();
-
-        for (int y = minY; y <= maxY; ++y) {
-            for (int x = minX; x <= maxX; ++x) {
-                if (pipeWorld[y][x] == '.') {
-                    groundPoints.add(Pair.of(x, y));
-                }
-            }
-        }
-        return groundPoints;
     }
 
     private char[][] createPipeWorld(String input) {
@@ -176,23 +176,6 @@ public class PipeMaze {
                 }
             }
             throw new IllegalStateException("Unable to create period for " + begin + " " + end);
-        }
-
-        public boolean isHorizontal() {
-            return begin.right().equals(end.right());
-        }
-
-        public boolean containsPoint(Pair<Integer, Integer> el) {
-            if (isHorizontal()) {
-                if (el.right().equals(begin.right())) {
-                    return el.left() >= begin.left() && el.left() < end.left();
-                }
-            } else {
-                if (el.left().equals(begin.left())) {
-                    return el.right() >= begin.right() && el.right() < end.right();
-                }
-            }
-            return false;
         }
     }
 
