@@ -75,4 +75,37 @@ class Day13Spec extends Specification {
             res == 41859
     }
 
+    def 'example part2'() {
+        given:
+            String input = """#.##..##.
+..#.##.#.
+##......#
+##......#
+..#.##.#.
+..##..##.
+#.#.##.#.
+
+#...##..#
+#....#..#
+..##..###
+#####.##.
+#####.##.
+..##..###
+#....#..#
+"""
+        when:
+            def res = pointOfIncidence.calculateWithSmudge(new StringInput(input))
+        then:
+            res == 400
+    }
+
+    def 'part2'() {
+        given:
+            Input input = new FileInput('day13.txt')
+        when:
+            Long res = pointOfIncidence.calculateWithSmudge(input)
+        then:
+            res == 30842
+    }
+
 }
