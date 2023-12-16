@@ -1,6 +1,5 @@
 package pl.gozdzikowski.pawel.adventofcode.day16;
 
-import groovy.lang.IntRange;
 import pl.gozdzikowski.pawel.adventofcode.shared.collections.Pair;
 import pl.gozdzikowski.pawel.adventofcode.shared.input.Input;
 
@@ -48,7 +47,7 @@ public class TheFloorWillBeLava {
         Set<Pair<Integer, Integer>> energizedPositions = new HashSet<>();
         Set<TraceRecord> traceRecords = new HashSet<>();
         while (true) {
-            List<Beam> beamsToBeConsidered = allBeamsOutOfArray(beams, array, traceRecords);
+            List<Beam> beamsToBeConsidered = allBeamsOutOfArrayOrDirectionAndPositionVisited(beams, array, traceRecords);
             if (beamsToBeConsidered.isEmpty())
                 break;
             List<Beam> beamsToBeAddedAfterIteration = new LinkedList<>();
@@ -107,7 +106,7 @@ public class TheFloorWillBeLava {
         return energizedPositions.size();
     }
 
-    private List<Beam> allBeamsOutOfArray(List<Beam> beams, String[][] array, Set<TraceRecord> traceRecords) {
+    private List<Beam> allBeamsOutOfArrayOrDirectionAndPositionVisited(List<Beam> beams, String[][] array, Set<TraceRecord> traceRecords) {
         return beams.stream().filter((el) -> !isOutOfArray(el, array) && !traceRecords.contains(el.toTraceRecord())).collect(Collectors.toCollection(LinkedList::new));
     }
 
