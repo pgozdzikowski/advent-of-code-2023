@@ -36,20 +36,6 @@ public class LavaductLagoon {
 
         visitedPoints.addAll(edges.stream().flatMap((el) -> el.pointsBetween().stream()).collect(Collectors.toSet()));
 
-//        String[][] arr = new String[boundedBox.maxY][boundedBox.maxX];
-//
-//        for (int y = 0; y < arr.length; ++y) {
-//            for (int x = 0; x < arr[y].length; ++x) {
-//                int finalX = x;
-//                int finalY = y;
-//                if(edges.stream().anyMatch((el) -> el.containsPoint(Pair.of(finalX, finalY))))
-//                    System.out.print("#");
-//                else
-//                    System.out.print('.');
-//            }
-//            System.out.println();
-//        }
-
         return visitedPoints.size();
     }
 
