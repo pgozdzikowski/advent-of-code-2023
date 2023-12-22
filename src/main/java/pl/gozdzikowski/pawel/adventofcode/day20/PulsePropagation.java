@@ -106,7 +106,6 @@ public class PulsePropagation {
         protected List<ElfModule> inputs;
         private String name;
 
-
         public abstract SequencedMap<ElfModule, PulseSate> process(ElfModule sourceModule, PulseSate pulseSate);
 
         public ElfModule(String name) {
@@ -141,9 +140,13 @@ public class PulsePropagation {
         }
 
         protected SequencedMap<ElfModule, PulseSate> convertToOutputPulseMap(PulseSate pulseSate) {
-            return outputs.stream().collect(Collectors.toMap(Function.identity(), (el -> pulseSate), (u, v) -> {
-                throw new IllegalStateException(String.format("Duplicate key %s", u));
-            }, LinkedHashMap::new));
+            return outputs.stream().collect(Collectors.toMap(Function.identity(),
+                    (el -> pulseSate),
+                    (u, v) -> {
+                        throw new IllegalStateException(String.format("Duplicate key %s", u));
+                    },
+                    LinkedHashMap::new)
+            );
         }
 
         public static final class FlipFlowModule extends ElfModule {
