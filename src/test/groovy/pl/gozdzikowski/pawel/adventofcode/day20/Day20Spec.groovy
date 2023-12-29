@@ -42,7 +42,7 @@ class Day20Spec extends Specification{
         when:
             def pulse = pulsePropagation.calculateMultiplyOfLowAndHighPulse(input)
         then:
-            pulse == 2004545842
+            pulse == 808146535
     }
 
 }

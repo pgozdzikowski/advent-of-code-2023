@@ -25,40 +25,40 @@ public class PulsePropagation {
     public Long calculateMultiplyOfLowAndHighPulse(Input input) {
         String[] lines = input.getContent().split("\\n");
         Map<String, ElfModule> elfModules = convertToModuleMap(lines);
-
-        Map<ElfModule, PulseSate> outputState = new HashMap<>(Map.of(elfModules.get("broadcaster"), PulseSate.LOW));
         Pair<Long, Long> result = LongStream.range(0, 1000)
-                .mapToObj((ignore) -> propagateButtonForSinglePress(elfModules, outputState))
+                .mapToObj((ignore) -> propagateButtonForSinglePress(elfModules))
                 .reduce(Pair.of(0L, 0L), (acc, el) -> Pair.of(acc.left() + el.left(), acc.right() + el.right()));
 
         return result.left() * result.right();
     }
 
-    private Pair<Long, Long> propagateButtonForSinglePress(Map<String, ElfModule> elfModules, Map<ElfModule, PulseSate> outputState) {
-        Deque<List<ElfModule>> elfModulesToProcess = new LinkedList<>(List.of(List.of(elfModules.get("broadcaster"))));
+    private Pair<Long, Long> propagateButtonForSinglePress(Map<String, ElfModule> elfModules) {
+        Deque<PulsePropagationEntry> elfModulesToProcess = new LinkedList<>(List.of(new PulsePropagationEntry(null, elfModules.get("broadcaster"), PulseSate.LOW)));
 
-        Map<ElfModule, ElfModule> previousElfModule = new HashMap<>();
         long lowSignals = 1;
         long highSignals = 0;
         while (!elfModulesToProcess.isEmpty()) {
-            List<ElfModule> elfModuleToProcess = elfModulesToProcess.poll();
+            PulsePropagationEntry currentElfModule = elfModulesToProcess.poll();
+            SequencedMap<ElfModule, PulseSate> processed = currentElfModule.dstModule.process(currentElfModule.srcModule, currentElfModule.pulseSate);
+            processed.sequencedEntrySet().forEach((el) ->
+                    elfModulesToProcess.add(new PulsePropagationEntry(currentElfModule.dstModule, el.getKey(), el.getValue()))
+            );
 
-            SequencedMap<ElfModule, PulseSate> singleProcessedOutput = new LinkedHashMap<>();
-            for (ElfModule elfModule : elfModuleToProcess) {
-                SequencedMap<ElfModule, PulseSate> processed = elfModule.process(previousElfModule.get(elfModule), outputState.get(elfModule));
-                processed.sequencedKeySet().forEach((el) -> previousElfModule.put(el, elfModule));
-                singleProcessedOutput.putAll(processed);
-                elfModulesToProcess.add(new LinkedList<>(processed.sequencedKeySet()));
-            }
-            Map<PulseSate, List<Map.Entry<ElfModule, PulseSate>>> grouped = singleProcessedOutput.entrySet()
+            Map<PulseSate, List<Map.Entry<ElfModule, PulseSate>>> grouped = processed.entrySet()
                     .stream().collect(groupingBy(Map.Entry::getValue));
-            outputState.putAll(singleProcessedOutput);
             lowSignals += grouped.getOrDefault(PulseSate.LOW, Collections.emptyList()).size();
             highSignals += grouped.getOrDefault(PulseSate.HIGH, Collections.emptyList()).size();
+
         }
 
         return Pair.of(lowSignals, highSignals);
     }
+
+    record PulsePropagationEntry(
+            ElfModule srcModule,
+            ElfModule dstModule,
+            PulseSate pulseSate
+    ) {}
 
     public Map<String, ElfModule> convertToModuleMap(String[] lines) {
         Map<String, ElfModule> modules = new HashMap<>();
